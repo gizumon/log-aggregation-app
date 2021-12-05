@@ -1,0 +1,8 @@
+network.host: 0.0.0.0
+
+## x-pack settings
+xpack.security.enabled: false
+# Monitoring function is free for one cluster only.
+xpack.monitoring.enabled: true
+xpack.graph.enabled: false
+xpack.watcher.enabled: false

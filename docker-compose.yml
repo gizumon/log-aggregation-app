@@ -1,0 +1,59 @@
+version: '3'
+services:
+  elasticsearch:
+    build: ./elasticsearch/
+    container_name: elasticsearch
+    environment:
+      - node.name=elasticsearch
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+    volumes:
+      - ./elasticsearch/data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+    networks:
+      - elasticstack
+    restart: always
+
+  kibana:
+    build: ./kibana/
+    container_name: kibana
+    volumes:
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
+    ports:
+      - 5601:5601
+    networks:
+      - elasticstack
+    restart: always
+
+  logstash:
+    build: ./logstash/
+    container_name: logstash
+    command: logstash -f /usr/share/logstash/pipeline/life-manager-app.conf
+    volumes:
+      - ./logstash/pipeline/:/usr/share/logstash/pipeline/
+      - ./logstash/config/:/usr/share/logstash/config/
+    ports:
+      - "5959:5959"
+      - "9600:9600"
+    networks:
+      - elasticstack
+    restart: always
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - "./nginx/confs:/etc/nginx/conf.d"
+      - "./nginx/certs:/etc/nginx/ssl"
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - elasticstack
+
+networks:
+  elasticstack:
+    driver: bridge
